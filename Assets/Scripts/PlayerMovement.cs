@@ -4,13 +4,7 @@ public class PlayerMovement : MonoBehaviour
 {
     // how fast the player moves
     public float MoveSpeed = 1.0f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-         
-    }
-
-    // Update is called once per frame
+ 
     void Update()
     {
         //when you press WASD, the player moves in that direction
