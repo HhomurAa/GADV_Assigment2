@@ -4,7 +4,14 @@ public class PlayerMovement : MonoBehaviour
 {
     // how fast the player moves
     public float MoveSpeed = 1.0f;
- 
+
+    private SpriteRenderer spriteRenderer;
+
+    private void Start()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     void Update()
     {
         //when you press WASD, the player moves in that direction
@@ -16,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(KeyCode.A))
         {
             MoveDirection += Vector2.left;
+            spriteRenderer.flipX = true; //sprite turn left
         }
         if (Input.GetKey(KeyCode.S))
         {
@@ -24,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
         {
             MoveDirection += Vector2.right;
+            spriteRenderer.flipX = false; //sprite turn right
         }
 
         //normalize makes it so that if i move diagonal, the speed will be the same as when i move straight
