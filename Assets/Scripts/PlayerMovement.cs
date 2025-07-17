@@ -19,20 +19,24 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKey(KeyCode.W))
         {
             MoveDirection += Vector2.up;
+            transform.rotation = Quaternion.Euler(0, 0, 180); //aprite face up
+
         }
         if (Input.GetKey(KeyCode.A))
         {
             MoveDirection += Vector2.left;
-            spriteRenderer.flipX = true; //sprite turn left
+            transform.rotation = Quaternion.Euler(0, 0, -90); //sprite turn left
         }
         if (Input.GetKey(KeyCode.S))
         {
             MoveDirection += Vector2.down;
+            transform.rotation = Quaternion.Euler(0, 0, 0); //sprite turn down
+
         }
         if (Input.GetKey(KeyCode.D))
         {
             MoveDirection += Vector2.right;
-            spriteRenderer.flipX = false; //sprite turn right
+            transform.rotation = Quaternion.Euler(0, 0, 90); //sprite turn right
         }
 
         //normalize makes it so that if i move diagonal, the speed will be the same as when i move straight

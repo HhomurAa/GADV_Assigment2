@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 99361cd11ac6fad47bfe117977de0e6a
+guid: 12d88497a9e94fc4d87a2bc12dfbd3a8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6048468287081955897
-    second: sjw_pixel_art-removebg-preview_0
+      213: 3427114271967980436
+    second: Character_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sjw_pixel_art-removebg-preview_0
+      name: Character_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 1
-        width: 103
-        height: 129
+        x: 0
+        y: 0
+        width: 484
+        height: 516
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7cdb34993268f0ca0800000000000000
-      internalID: -6048468287081955897
+      spriteID: 49ba251d54e8f8f20800000000000000
+      internalID: 3427114271967980436
       vertices: []
       indices: 
       edges: []
@@ -147,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      sjw_pixel_art-removebg-preview_0: -6048468287081955897
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
