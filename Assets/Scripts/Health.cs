@@ -4,7 +4,6 @@ public class Health : MonoBehaviour
 {
     //makes health variable visible and editable
     [SerializeField] private int health = 100;
-    private int MAX_HEALTH = 100;
   
     void Update()
     {

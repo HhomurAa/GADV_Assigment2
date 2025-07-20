@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Analytics;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -6,6 +7,8 @@ public class PlayerAttack : MonoBehaviour
     private bool Attacking = false;
     private float TimeToAttack = 0.25f;
     private float Timer = 0f;
+
+    public Animator animator; //for the attack animation
 
     void Start()
     {
@@ -37,6 +40,8 @@ public class PlayerAttack : MonoBehaviour
     private void Attack()
     {
         Attacking = true;
-        AttackArea.SetActive(Attacking);    
+        AttackArea.SetActive(Attacking);
+        //attack animation
+        animator.SetTrigger("Attack");
     }
 }
