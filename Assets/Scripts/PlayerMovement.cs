@@ -1,46 +1,41 @@
-    using UnityEngine;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.U2D;
 
-    public class PlayerMovement : MonoBehaviour
-    {
-        // how fast the player moves
-        public float MoveSpeed = 1.0f;
+public class PlayerMovement : MonoBehaviour
+{
+    // how fast the player moves
+    public float MoveSpeed = 1.0f;
 
-        public Transform visuals;
+    public Transform Player;
+
+
+    private Vector2 MoveDirection;
 
     void Update()
+    {
+        MoveDirection = Vector2.zero; //reset at start of frame
+
+        //movement input
+        if (Input.GetKey(KeyCode.W)) MoveDirection += Vector2.up;
+        if (Input.GetKey(KeyCode.S)) MoveDirection += Vector2.down;
+        if (Input.GetKey(KeyCode.A)) MoveDirection += Vector2.left;
+        if (Input.GetKey(KeyCode.D)) MoveDirection += Vector2.right;
+
+        //apply rotation when character turns
+        if (MoveDirection != Vector2.zero)
         {
-            //when you press WASD, the player moves in that direction
-            Vector2 MoveDirection = Vector2.zero;
-            if (Input.GetKey(KeyCode.W))
-            {
-                MoveDirection += Vector2.up;
-                visuals.rotation = Quaternion.Euler(0, 0, 180); //aprite face up
+            MoveDirection = MoveDirection.normalized;
 
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                MoveDirection += Vector2.left;
-                visuals.rotation = Quaternion.Euler(0, 0, -90); //sprite turn left
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                MoveDirection += Vector2.down;
-                visuals.rotation = Quaternion.Euler(0, 0, 0); //sprite turn down
-
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                MoveDirection += Vector2.right;
-                visuals.rotation = Quaternion.Euler(0, 0, 90); //sprite turn right
-            }
-
-            //normalize makes it so that if i move diagonal, the speed will be the same as when i move straight
-            if (MoveDirection != Vector2.zero)
-            {
-                MoveDirection = MoveDirection.normalized;
-            }
-
-            //moves in the direction of the key you pressed
+            // Move the entire object(this includes the sprite and everything else)
             transform.position += (Vector3)(MoveDirection * MoveSpeed * Time.deltaTime);
+
+            // Rotate just the sprite (child)
+            float angle = Mathf.Atan2(MoveDirection.y, MoveDirection.x) * Mathf.Rad2Deg + 90f;
+            if (Player != null)
+                Player.localRotation = Quaternion.Euler(0, 0, angle); // use localRotation to avoid global shift
         }
     }
+}
+    
+
