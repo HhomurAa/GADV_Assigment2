@@ -13,12 +13,14 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         AttackArea = transform.GetChild(0).gameObject;
+        AttackArea.SetActive(false); //makes sure the attack area is disabled at the start
     }
 
     void Update()
     {
+        //accpt input only if not currently attacking
         //left click to attack
-        if (Input.GetMouseButtonDown(0))
+        if (!Attacking && Input.GetMouseButtonDown(0))
         {
             Attack();
         }
