@@ -39,21 +39,22 @@ public class Enemy : MonoBehaviour
         float DistanceToPlayer = Vector2.Distance(transform.position, Player.transform.position);
 
         //calls MoveTowardsPlayer when in detection range and stops a certain distance before the player
-        if (DistanceToPlayer <= DetectionRange && DistanceToPlayer > StopDistance && !IsAttacking)
+        if (DistanceToPlayer <= DetectionRange && DistanceToPlayer > StopDistance)
         {
             MoveTowardsPlayer();
         }
 
         //attack if within distance
-        if (DistanceToPlayer <= StopDistance)
+        if (!IsAttacking && DistanceToPlayer <= StopDistance)
         {
             if (!IsAttacking)
             {
                 StartAttackIndicator();
             }
         }
-        else
+        else if (!IsAttacking && DistanceToPlayer > DetectionRange)
         {
+            //only resets if player is far away and not attacking
             ResetAttack();
         }
 
@@ -144,6 +145,7 @@ public class Enemy : MonoBehaviour
 
     private void ExecuteAttack()
     {
+        //damage player if in range
         if (Player != null && Vector2.Distance(transform.position, Player.transform.position) <= StopDistance)
         {
             Health PlayerHealth = Player.GetComponent<Health>();
@@ -153,11 +155,16 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        //reset and repeat attack if still in range
-        if (coneFill != null)
+        //check if player is in range to attack
+        if (Player != null && Vector2.Distance(transform.position, Player.transform.position) <= StopDistance)
         {
             coneFill.ResetFill();
             coneFill.StartFilling(); //refill and reattack automatically
+        }
+
+        else
+        {
+            ResetAttack(); //if player leaves attack range
         }
     }
 
