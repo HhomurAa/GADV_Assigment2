@@ -2,15 +2,36 @@ using UnityEngine;
 
 public class AttackArea : MonoBehaviour
 {
-    private int Damage = 5;
+    [SerializeField] private int DamageAmount = 5;
+
+    private bool HasDealtDamage = false;
+
+    private void OnEnable()
+    {
+        HasDealtDamage = false; //resets when attack area activates
+    }
+
+    public void ResetDamageFlag()
+    {
+        HasDealtDamage = false;
+    }
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        //checks whether the collided area has a health component
-        if(collider.GetComponent<Health>() != null)
+        if (HasDealtDamage)
         {
-            Health health = collider.GetComponent<Health>();
-            health.Damage(Damage);
+            return;
+        }
+
+        Enemy enemy = collider.GetComponentInParent<Enemy>();
+        if (enemy != null)
+        {
+            Health EnemyHealth = enemy.GetComponent<Health>();
+            if (EnemyHealth != null)
+            {
+                EnemyHealth.Damage(DamageAmount); //apply damage
+                HasDealtDamage = true;
+            }
         }
     }
 }

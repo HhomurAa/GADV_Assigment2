@@ -1,12 +1,15 @@
+using System.Diagnostics;
 using UnityEngine;
 
 public class Health : MonoBehaviour
 {
     //makes health variable visible and editable
-    [SerializeField] private int health = 100;
+    [SerializeField] int health = 100;
     private int MAX_HEALTH = 100;
 
     [SerializeField] private HMEBar hmeBar;
+
+    public int CurrentHealth => health;
 
     private void Start()
     {
@@ -19,6 +22,9 @@ public class Health : MonoBehaviour
 
     public void Damage(int amount)
     {
+        StackTrace stackTrace = new StackTrace(true); // true = capture file info
+        UnityEngine.Debug.Log($"Damage({amount}) called on {gameObject.name}\nStack trace:\n{stackTrace}");
+
         if (amount < 0)
         {
             throw new System.ArgumentOutOfRangeException("Cannot have negative damage");
@@ -54,6 +60,7 @@ public class Health : MonoBehaviour
 
     private void Die()
     {
+        gameObject.SetActive(false);
         Destroy(gameObject);
     }
 }

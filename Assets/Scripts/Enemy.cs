@@ -22,11 +22,14 @@ public class Enemy : MonoBehaviour
     private bool IsAttacking = false;
     private GameObject CurrentIndicator;
     private ConeFill coneFill;
+    private Rigidbody2D RigidBody;
 
+    private const int DamageAmount = 5;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
+        RigidBody = GetComponent<Rigidbody2D>();
         SetEnemyValues();
     }
 
@@ -37,12 +40,6 @@ public class Enemy : MonoBehaviour
         if (Player == null) return;
 
         float DistanceToPlayer = Vector2.Distance(transform.position, Player.transform.position);
-
-        //calls MoveTowardsPlayer when in detection range and stops a certain distance before the player
-        if (DistanceToPlayer <= DetectionRange && DistanceToPlayer > StopDistance)
-        {
-            MoveTowardsPlayer();
-        }
 
         //attack if within distance
         if (!IsAttacking && DistanceToPlayer <= StopDistance)
@@ -65,16 +62,37 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        if (Player == null) return;
+
+        float DistanceToPlayer = Vector2.Distance(transform.position, Player.transform.position);
+
+        //calls MoveTowardsPlayer when in detection range and stops a certain distance before the player
+        if (DistanceToPlayer <= DetectionRange && DistanceToPlayer > StopDistance)
+        {
+            MoveTowardsPlayer();
+        }
+    }
+
+    //moves the enemy towards the player
     private void MoveTowardsPlayer()
     {
-        Vector2 direction = (Player.transform.position - transform.position).normalized;
-        //moves the enemy towards the player
-        transform.position += (Vector3)(direction * Speed * Time.deltaTime);
+        Vector2 Direction = (Player.transform.position - transform.position).normalized;
+        Vector2 NewPosition = RigidBody.position + Direction * Speed * Time.fixedDeltaTime;
+
+        //move using physics
+        RigidBody.MovePosition(NewPosition);
     }
 
     private void SetEnemyValues()
     {
-        GetComponent<Health>().SetHealth(Data.Hp, Data.Hp);
+        Health HealthComponent = GetComponent<Health>();
+        if (HealthComponent != null)
+        {
+            HealthComponent.SetHealth(Data.Hp, Data.Hp);
+        }
+
         Damage = Data.Damage;
         Speed = Data.Speed;
 
@@ -129,7 +147,6 @@ public class Enemy : MonoBehaviour
         float DistanceFromEnemy = 0.5f;
         Vector3 TrackedOffset = direction * DistanceFromEnemy;
         Vector3 TrackedPosition = transform.position + TrackedOffset;
-
 
         //update indicator
         CurrentIndicator.transform.position = TrackedPosition;
@@ -188,13 +205,19 @@ public class Enemy : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collider)
     {
+        //damage player if hits them
         if (collider.CompareTag("Player"))
         {
             Health health = collider.GetComponent<Health>();
             if (health != null)
             {
-                health.Damage(Damage);
+                health.Damage(DamageAmount);
             }
         }
+    }
+    private void Die()
+    {
+        Debug.Log($"{name} died.");
+        Destroy(gameObject);
     }
 }
