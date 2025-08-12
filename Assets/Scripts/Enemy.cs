@@ -25,7 +25,6 @@ public class Enemy : MonoBehaviour
     private Rigidbody2D RigidBody;
 
     private const int DamageAmount = 5;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -33,7 +32,6 @@ public class Enemy : MonoBehaviour
         SetEnemyValues();
     }
 
-    // Update is called once per frame
     void Update()
     {
         //exits when there is no player

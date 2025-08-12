@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 647e30ba592b91c4e859657c64867913, type: 3}
-  m_Name: Fireball
+  m_Name: Laserbeam
   m_EditorClassIdentifier: 
-  AbilityName: Fireball
+  AbilityName: Laserbeam
   Cooldown: 5
   Damage: 5
-  Range: 5
+  Range: 10
   ManaCost: 5

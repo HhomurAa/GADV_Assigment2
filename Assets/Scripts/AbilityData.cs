@@ -7,5 +7,5 @@ public class NewMonoBehaviourScript : ScriptableObject
     public float Cooldown;
     public int Damage;
     public float Range;
-    // other ability parameters
+    public float ManaCost;
 }
