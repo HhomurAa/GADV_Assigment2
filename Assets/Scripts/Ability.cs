@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class Ability : MonoBehaviour
 {
@@ -20,17 +22,36 @@ public class Ability : MonoBehaviour
     [SerializeField] private LineRenderer LaserLine; //draw a line for the laser
     [SerializeField] private float LaserDuration = 1f;
 
+    [SerializeField] private HMEBar hmeBar;
+
     private float CooldownTimer = 0f;
-   
+
+    private void Start()
+    {
+        if (hmeBar != null)
+        {
+            //instantiate slider at full cooldown
+            hmeBar.SetFireBallCooldown(Cooldown, Cooldown);
+        }
+    }
     void Update()
     {
         if (CooldownTimer > 0f)
         {
             CooldownTimer -= Time.deltaTime;
+            if (CooldownTimer < 0f)
+            {
+                CooldownTimer = 0f;
+            }
+
+            if (hmeBar != null)
+            {
+                hmeBar.UpdateFireballCooldown(Cooldown - CooldownTimer);
+            }
         }
 
         //cast ability
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             ActivateAbility();
         }
@@ -58,14 +79,18 @@ public class Ability : MonoBehaviour
                     break;
             }
         }
-
         CooldownTimer = Cooldown;
+        if (hmeBar != null)
+        {
+            hmeBar.SetFireBallCooldown(CooldownTimer, Cooldown);
+        }
     }
 
     private void ActivateFireball()
     {
         if (FireballPrefab != null && FirePoint != null)
         {
+            //rotate the prefab to align with player direction
             Instantiate(FireballPrefab, FirePoint.position, FirePoint.rotation);
         }
     }

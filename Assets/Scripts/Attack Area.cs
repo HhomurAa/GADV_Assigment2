@@ -1,37 +1,40 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AttackArea : MonoBehaviour
 {
     [SerializeField] private int DamageAmount = 5;
-
-    private bool HasDealtDamage = false;
+    //keeps track of the enemies thats been hit
+    private HashSet<Enemy> HitEnemies = new HashSet<Enemy>();
 
     private void OnEnable()
     {
-        HasDealtDamage = false; //resets when attack area activates
+        HitEnemies.Clear(); //reset on activation
     }
 
-    public void ResetDamageFlag()
+    public void ResetHits()
     {
-        HasDealtDamage = false;
+        HitEnemies.Clear(); //reset hits when attack area activates
     }
 
-    private void OnTriggerEnter2D(Collider2D collider)
+    public void DealDamage()
     {
-        if (HasDealtDamage)
+        //check all colliders in the attack area
+        Collider2D[] Hits = Physics2D.OverlapCircleAll(transform.position, transform.localScale.x / 2);
+        foreach (Collider2D Hit in Hits)
         {
-            return;
-        }
-
-        Enemy enemy = collider.GetComponentInParent<Enemy>();
-        if (enemy != null)
-        {
-            Health EnemyHealth = enemy.GetComponent<Health>();
-            if (EnemyHealth != null)
+            Enemy enemy = Hit.GetComponentInParent<Enemy>();
+            if (enemy != null && !HitEnemies.Contains(enemy))
             {
-                EnemyHealth.Damage(DamageAmount); //apply damage
-                HasDealtDamage = true;
+                Health EnemyHealth = enemy.GetComponent<Health>();
+                if (EnemyHealth != null)
+                {
+                    EnemyHealth.Damage(DamageAmount);
+                    HitEnemies.Add(enemy); //mark enemy as hit
+                }
             }
         }
     }
 }
+
+    

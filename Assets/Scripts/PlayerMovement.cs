@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.U2D;
@@ -26,6 +27,13 @@ public class PlayerMovement : MonoBehaviour
     private bool IsDashing = false;
     private float DashTimer = 0f;
 
+    private Rigidbody2D RigidBody;
+
+    private void Awake()
+    {
+        RigidBody = GetComponent<Rigidbody2D>();
+    }
+
     void Start()
     {
         playerAttack = GetComponent<PlayerAttack>();
@@ -39,11 +47,74 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        EnergyRegen();
+
+        //stop moving when attacking
+        if (playerAttack != null && playerAttack.IsAttacking)
+        {
+            MoveDirection = Vector2.zero;
+            return;
+        }
+
+        if (!IsDashing)
+        {
+            MoveDirection = Vector2.zero;
+
+            //movement input
+            if (Input.GetKey(KeyCode.W)) MoveDirection += Vector2.up;
+            if (Input.GetKey(KeyCode.S)) MoveDirection += Vector2.down;
+            if (Input.GetKey(KeyCode.A)) MoveDirection += Vector2.left;
+            if (Input.GetKey(KeyCode.D)) MoveDirection += Vector2.right;
+            MoveDirection = MoveDirection.normalized;
+
+            //dash input
+            if (Input.GetKeyDown(KeyCode.Q) && MoveDirection != Vector2.zero && CurrentEnergy >= DashEnergyCost)
+            {
+                CurrentEnergy -= DashEnergyCost;
+                UpdateEnergyUI();
+                StartDash();
+            }
+        }
+
+        //rotate when character turns
+        if (MoveDirection != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(MoveDirection.y, MoveDirection.x) * Mathf.Rad2Deg + 90f;
+            Player.localRotation = Quaternion.Euler(0, 0, angle);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        if (IsDashing)
+        {
+            RigidBody.linearVelocity = MoveDirection * DashSpeed;
+            DashTimer += Time.fixedDeltaTime;
+            if (DashTimer >= DashDuration)
+            {
+                IsDashing = false;
+                DashTimer = 0f;
+            }
+        }
+        else if (MoveDirection != Vector2.zero) //only moves when wasd is pressed
+        {
+            RigidBody.linearVelocity = MoveDirection * MoveSpeed;
+        }
+
+        else
+        {
+            //stop when no input
+            RigidBody.linearVelocity = Vector2.zero;
+        }
+    }
+
+    private void EnergyRegen()
+    {
         if (RegenDelayTimer > 0f)
         {
             RegenDelayTimer -= Time.deltaTime;
         }
-        //regen energy when not atttacking or dashing
+
         if (!IsDashing && (playerAttack == null || !playerAttack.IsAttacking) && RegenDelayTimer <= 0f)
         {
             EnergyAccumulator += EnergyRegenRate * Time.deltaTime;
@@ -54,70 +125,18 @@ public class PlayerMovement : MonoBehaviour
                 if (EnergyToAdd > 0)
                 {
                     CurrentEnergy += EnergyToAdd;
-
                     if (CurrentEnergy > MaxEnergy)
-                    {
                         CurrentEnergy = MaxEnergy;
-                    }
 
                     EnergyAccumulator -= EnergyToAdd;
-
                     UpdateEnergyUI();
                 }
             }
-        } 
-        //stop moving when attacking
-        if (playerAttack != null && playerAttack.IsAttacking)
-        {
-            return;
-        }
-
-        if (IsDashing)
-        {
-            transform.position += (Vector3)(MoveDirection * DashSpeed * Time.deltaTime);
-            DashTimer +=  Time.deltaTime;
-            if (DashTimer >= DashDuration)
-            {
-                IsDashing = false;
-                DashTimer = 0f;
-            }
-            return;
-        }
-
-        MoveDirection = Vector2.zero; //reset at start of frame
-        //movement input
-        if (Input.GetKey(KeyCode.W)) MoveDirection += Vector2.up;
-        if (Input.GetKey(KeyCode.S)) MoveDirection += Vector2.down;
-        if (Input.GetKey(KeyCode.A)) MoveDirection += Vector2.left;
-        if (Input.GetKey(KeyCode.D)) MoveDirection += Vector2.right;
-
-        //dash input
-        if (Input.GetKeyDown(KeyCode.Q) && !IsDashing && MoveDirection != Vector2.zero)
-        {
-            if (CurrentEnergy >= DashEnergyCost)
-            {
-                CurrentEnergy -= DashEnergyCost;
-                UpdateEnergyUI();
-                StartDash();
-            }
-        }
-
-        //apply rotation when character turns
-        if (MoveDirection != Vector2.zero)
-        {
-            MoveDirection = MoveDirection.normalized;
-
-            //move the entire object
-            transform.position += (Vector3)(MoveDirection * MoveSpeed * Time.deltaTime);
-
-            //rotate just the sprite 
-            float angle = Mathf.Atan2(MoveDirection.y, MoveDirection.x) * Mathf.Rad2Deg + 90f;
-            if (Player != null)
-                Player.localRotation = Quaternion.Euler(0, 0, angle); // use localRotation to avoid global shift
         }
     }
-    
-    void StartDash()
+
+
+    private void StartDash()
     {
         IsDashing = true;
         DashTimer = 0f;
@@ -129,10 +148,7 @@ public class PlayerMovement : MonoBehaviour
         if (CurrentEnergy < 0) CurrentEnergy = 0;
         {
             EnergyAccumulator = 0f;
-
-            //reset regen timer
-            RegenDelayTimer = EnergyRegenDelay;
-
+            RegenDelayTimer = EnergyRegenDelay; //reset regen timer
             UpdateEnergyUI();
         }
     }

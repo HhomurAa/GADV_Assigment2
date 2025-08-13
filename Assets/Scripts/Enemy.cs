@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Unity.Android.Gradle.Manifest;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -11,6 +13,7 @@ public class Enemy : MonoBehaviour
     private float DetectionRange = 5f;
     [SerializeField]
     private float StopDistance = 2.5f;
+
     [SerializeField]
     private GameObject AttackIndicatorPrefab;
     [SerializeField]
@@ -29,6 +32,7 @@ public class Enemy : MonoBehaviour
     {
         Player = GameObject.FindGameObjectWithTag("Player");
         RigidBody = GetComponent<Rigidbody2D>();
+
         SetEnemyValues();
     }
 
@@ -71,16 +75,24 @@ public class Enemy : MonoBehaviour
         {
             MoveTowardsPlayer();
         }
+
+        else
+        {
+            //stop movement if outside detection or too close
+            RigidBody.linearVelocity = Vector2.zero;
+        }
     }
 
     //moves the enemy towards the player
     private void MoveTowardsPlayer()
     {
-        Vector2 Direction = (Player.transform.position - transform.position).normalized;
-        Vector2 NewPosition = RigidBody.position + Direction * Speed * Time.fixedDeltaTime;
+        if (Player == null) return;
 
-        //move using physics
-        RigidBody.MovePosition(NewPosition);
+        Vector2 direction = (Player.transform.position - transform.position).normalized;
+        Vector2 targetVelocity = direction * Speed;
+
+        // Only update velocity along movement direction
+        RigidBody.linearVelocity = targetVelocity;
     }
 
     private void SetEnemyValues()
@@ -93,7 +105,6 @@ public class Enemy : MonoBehaviour
 
         Damage = Data.Damage;
         Speed = Data.Speed;
-
     }
 
     private void StartAttackIndicator()
@@ -212,10 +223,5 @@ public class Enemy : MonoBehaviour
                 health.Damage(DamageAmount);
             }
         }
-    }
-    private void Die()
-    {
-        Debug.Log($"{name} died.");
-        Destroy(gameObject);
     }
 }

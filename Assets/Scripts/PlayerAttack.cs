@@ -2,32 +2,25 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    private GameObject AttackArea = default; //attack area
     private AttackArea AttackAreaScript;
     private bool Attacking = false;
     private float TimeToAttack = 0.25f;
     private float Timer = 0f;
 
     public Animator animator; //for the attack animation
-
     public int AttackEnergyCost = 5;
 
-    private PlayerMovement playerMovement;
+    private PlayerMovement PlayerMovement;
     private HMEBar hmeBar;
-
-
 
     //for other script to check
     public bool IsAttacking => Attacking;
 
     void Start()
     {
-        AttackArea = transform.GetChild(0).gameObject;
-        AttackArea.SetActive(false); //makes sure the attack area is disabled at the start
+        AttackAreaScript = transform.GetChild(0).GetComponent<AttackArea>();
 
-        AttackAreaScript = AttackArea.GetComponent<AttackArea>();
-
-        playerMovement = GetComponent<PlayerMovement>();
+        PlayerMovement = GetComponent<PlayerMovement>();
         hmeBar = FindFirstObjectByType<HMEBar>();
     }
 
@@ -37,7 +30,7 @@ public class PlayerAttack : MonoBehaviour
         //left click to attack
         if (!Attacking && Input.GetMouseButtonDown(0))
         {
-            if (playerMovement != null && playerMovement.CurrentEnergy >= AttackEnergyCost)
+            if (PlayerMovement != null && PlayerMovement.CurrentEnergy >= AttackEnergyCost)
             Attack();
         }
 
@@ -50,26 +43,31 @@ public class PlayerAttack : MonoBehaviour
             {
                 Timer = 0;
                 Attacking = false;
-                AttackArea.SetActive(Attacking);
             }
         }
     }
 
     private void Attack()
     {
-        if (playerMovement != null)
+        if (PlayerMovement != null)
         {
-            playerMovement.UseEnergy(AttackEnergyCost);
+            PlayerMovement.UseEnergy(AttackEnergyCost);
         }
 
         if (AttackAreaScript != null)
         {
-            AttackAreaScript.ResetDamageFlag();
+            AttackAreaScript.ResetHits();
+            AttackAreaScript.DealDamage();
         }
 
         Attacking = true;
-        AttackArea.SetActive(Attacking);
+        Timer = 0f;
+
         //attack animation
-        animator.SetTrigger("Attack");
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack");
+        }
     }
 }
+

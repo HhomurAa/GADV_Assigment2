@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Archer
   m_EditorClassIdentifier: 
   Hp: 50
-  Damage: 7
-  Speed: 4
+  Damage: 5
+  Speed: 5
