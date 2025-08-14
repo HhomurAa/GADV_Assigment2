@@ -17,7 +17,6 @@ public class PlayerMovement : MonoBehaviour
     private float EnergyAccumulator = 0f;
     public float EnergyRegenDelay = 0.5f;
     private float RegenDelayTimer = 0f;
-
     public int DashEnergyCost = 5;
 
     private Vector2 MoveDirection;
@@ -28,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
     private float DashTimer = 0f;
 
     private Rigidbody2D RigidBody;
+
+    public bool IsCastingLaser { get; private set; } = false;
 
     private void Awake()
     {
@@ -50,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
         EnergyRegen();
 
         //stop moving when attacking
-        if (playerAttack != null && playerAttack.IsAttacking)
+        if ((playerAttack != null && playerAttack.IsAttacking) || IsCastingLaser)
         {
             MoveDirection = Vector2.zero;
             return;
@@ -135,7 +136,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     private void StartDash()
     {
         IsDashing = true;
@@ -156,5 +156,10 @@ public class PlayerMovement : MonoBehaviour
     void UpdateEnergyUI()
     {
         hmeBar.SetEnergy(CurrentEnergy);
+    }
+
+    public void SetCastingLaser(bool value)
+    {
+        IsCastingLaser = value;
     }
 }

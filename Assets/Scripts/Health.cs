@@ -33,6 +33,13 @@ public class Health : MonoBehaviour
         this.health -= amount;
         health = Mathf.Clamp(health, 0, MAX_HEALTH);
 
+        //flash red if this obhect is an enemy
+        Enemy enemy = GetComponent<Enemy>();
+        if (enemy != null)
+        {
+            enemy.FlashOnHit();
+        }
+
         //update health bar
         if (hmeBar != null)
         {

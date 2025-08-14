@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Android.Gradle.Manifest;
 using Unity.VisualScripting;
@@ -27,7 +28,19 @@ public class Enemy : MonoBehaviour
     private ConeFill coneFill;
     private Rigidbody2D RigidBody;
 
+    private SpriteRenderer spriteRenderer;
+    private Color OriginalColor;
+
     private const int DamageAmount = 5;
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            OriginalColor = spriteRenderer.color;
+        }
+    }
     void Start()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -223,5 +236,20 @@ public class Enemy : MonoBehaviour
                 health.Damage(DamageAmount);
             }
         }
+    }
+
+    public void FlashOnHit()
+    {
+        if (spriteRenderer != null)
+        {
+            StopAllCoroutines(); //prevent overlap if hit multiple times
+            StartCoroutine(FlashRoutine());
+        }
+    }
+    private IEnumerator FlashRoutine()
+    {
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f); //flash duration
+        spriteRenderer.color = OriginalColor;
     }
 }

@@ -7,9 +7,12 @@ public class Fireball : MonoBehaviour
     public float Speed = 5f;
     public int Damage = 5;
     public float ExplosionRadius = 3f;
+    public float MaxTravelDistance = 10f;
     public GameObject ExplosionPrefab;
+
     private bool HasExploded = false;
     private Rigidbody2D RigidBody;
+    private Vector3 StartPosition;
 
     private void Awake()
     {
@@ -22,6 +25,8 @@ public class Fireball : MonoBehaviour
 
     private void Start()
     {
+        StartPosition = transform.position;
+
         //ignore collision with the player
         GameObject Player = GameObject.FindGameObjectWithTag("Player");
         if (Player != null)
@@ -38,6 +43,15 @@ public class Fireball : MonoBehaviour
         if (RigidBody != null)
         {
             RigidBody.linearVelocity = -transform.up * Speed;
+        }
+    }
+
+    private void Update()
+    {
+        //check travel distance
+        if (Vector3.Distance(StartPosition, transform.position) >= MaxTravelDistance)
+        {
+            Explode();
         }
     }
 
@@ -67,6 +81,12 @@ public class Fireball : MonoBehaviour
 
     private void Explode()
     {
+        if (HasExploded)
+        {
+            return;
+        }
+        HasExploded = true;
+
         //explosion effect
         if (ExplosionPrefab != null)
         {
