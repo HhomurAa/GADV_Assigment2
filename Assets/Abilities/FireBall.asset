@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fireball
   m_EditorClassIdentifier: 
   AbilityName: Fireball
-  Cooldown: 5
+  Cooldown: 2
   Damage: 5
   Range: 5
   ManaCost: 5

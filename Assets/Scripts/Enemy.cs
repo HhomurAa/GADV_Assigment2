@@ -7,41 +7,33 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField]
-    private int Damage = 5;
+    protected int Damage = 5;
     [SerializeField]
-    private float Speed = 5f;
+    protected float Speed = 5f;
     [SerializeField]
-    private float DetectionRange = 5f;
+    protected float DetectionRange = 5f;
     [SerializeField]
-    private float StopDistance = 2.5f;
+    protected float StopDistance = 2.5f;
 
     [SerializeField]
-    private GameObject AttackIndicatorPrefab;
+    protected GameObject AttackIndicatorPrefab;
     [SerializeField]
-    private EnemyData Data;
+    protected EnemyData Data;
     [SerializeField]
-    private Transform AttackArea;
+    protected Transform AttackArea;
 
-    private GameObject Player;
-    private bool IsAttacking = false;
-    private GameObject CurrentIndicator;
-    private ConeFill coneFill;
-    private Rigidbody2D RigidBody;
+    [SerializeField] protected int ExpReward = 25; 
 
-    private SpriteRenderer spriteRenderer;
-    private Color OriginalColor;
+
+    protected GameObject Player;
+    protected  bool IsAttacking = false;
+    protected  GameObject CurrentIndicator;
+    protected  ConeFill coneFill;
+    protected  Rigidbody2D RigidBody;
 
     private const int DamageAmount = 5;
 
-    private void Awake()
-    {
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            OriginalColor = spriteRenderer.color;
-        }
-    }
-    void Start()
+    protected virtual void Start()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
         RigidBody = GetComponent<Rigidbody2D>();
@@ -49,7 +41,7 @@ public class Enemy : MonoBehaviour
         SetEnemyValues();
     }
 
-    void Update()
+    protected virtual void Update()
     {
         //exits when there is no player
         if (Player == null) return;
@@ -77,7 +69,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if (Player == null) return;
 
@@ -97,18 +89,18 @@ public class Enemy : MonoBehaviour
     }
 
     //moves the enemy towards the player
-    private void MoveTowardsPlayer()
+    protected virtual void MoveTowardsPlayer()
     {
         if (Player == null) return;
 
-        Vector2 direction = (Player.transform.position - transform.position).normalized;
-        Vector2 targetVelocity = direction * Speed;
+        Vector2 Direction = (Player.transform.position - transform.position).normalized;
+        Vector2 TargetVelocity = Direction * Speed;
 
         // Only update velocity along movement direction
-        RigidBody.linearVelocity = targetVelocity;
+        RigidBody.linearVelocity = TargetVelocity;
     }
 
-    private void SetEnemyValues()
+    protected virtual void SetEnemyValues()
     {
         Health HealthComponent = GetComponent<Health>();
         if (HealthComponent != null)
@@ -120,7 +112,7 @@ public class Enemy : MonoBehaviour
         Speed = Data.Speed;
     }
 
-    private void StartAttackIndicator()
+    protected virtual void StartAttackIndicator()
     {
         IsAttacking = true;
 
@@ -158,9 +150,9 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void TrackAttackIndicator()
+    protected virtual void TrackAttackIndicator()
     {
-        if (CurrentIndicator == null || Player == null) return;
+        if (CurrentIndicator == null || Player == null || this == null) return;
 
         //recalculate
         Vector3 direction = (Player.transform.position - transform.position).normalized;
@@ -182,7 +174,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ExecuteAttack()
+    protected virtual void ExecuteAttack()
     {
         //damage player if in range
         if (Player != null && Vector2.Distance(transform.position, Player.transform.position) <= StopDistance)
@@ -207,7 +199,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void ResetAttack()
+    protected virtual void ResetAttack()
     {
         IsAttacking = false;
 
@@ -238,18 +230,20 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void FlashOnHit()
+    public virtual void Die()
     {
-        if (spriteRenderer != null)
+        StopAllCoroutines();
+        //prevent update from running
+        this.enabled = false;
+
+        if (Player != null)
         {
-            StopAllCoroutines(); //prevent overlap if hit multiple times
-            StartCoroutine(FlashRoutine());
+            Experience PlayerExp = Player.GetComponent<Experience>();
+            if (PlayerExp != null)
+            {
+                PlayerExp.GainExp(ExpReward); //give exp
+            }
         }
-    }
-    private IEnumerator FlashRoutine()
-    {
-        spriteRenderer.color = Color.red;
-        yield return new WaitForSeconds(0.1f); //flash duration
-        spriteRenderer.color = OriginalColor;
+        Destroy(gameObject);
     }
 }

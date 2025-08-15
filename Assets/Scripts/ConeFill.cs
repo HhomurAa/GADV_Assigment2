@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 public class ConeFill : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class ConeFill : MonoBehaviour
 
     public System.Action OnFillComplete; //callback to notify when full
 
+    public Transform target; //enemy this cone belongs to
+
     public void StartFilling()
     {
         if (FillImage == null || BorderImage == null) return;
@@ -20,7 +23,7 @@ public class ConeFill : MonoBehaviour
         //set pivot and anchor to bottom right
         FillImage.type = Image.Type.Filled;
         FillImage.fillMethod = Image.FillMethod.Vertical;
-        FillImage.fillOrigin = (int)Image.OriginVertical.Top; // Fill from bottom up
+        FillImage.fillOrigin = (int)Image.OriginVertical.Top; //fill from bottom up
         FillImage.fillAmount = 0f;
 
         CurrentFill = 0f;
@@ -29,8 +32,16 @@ public class ConeFill : MonoBehaviour
 
     void Update()
     {
-        if (!Filling || FillImage == null) return;
+        if (target == null)
+        {
+            Destroy(gameObject);
+            return; //target is your enemy
+        }
 
+        if (!Filling || FillImage == null)
+        {
+            return;
+        }
         CurrentFill += Time.deltaTime * FillSpeed;
         CurrentFill = Mathf.Clamp01(CurrentFill); //makes sure it stays between 0 and 1 
 

@@ -30,6 +30,8 @@ public class PlayerMovement : MonoBehaviour
 
     public bool IsCastingLaser { get; private set; } = false;
 
+    public float InteractRange = 2f;
+
     private void Awake()
     {
         RigidBody = GetComponent<Rigidbody2D>();
@@ -74,6 +76,12 @@ public class PlayerMovement : MonoBehaviour
                 CurrentEnergy -= DashEnergyCost;
                 UpdateEnergyUI();
                 StartDash();
+            }
+
+            //interact input
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Interact();
             }
         }
 
@@ -158,8 +166,29 @@ public class PlayerMovement : MonoBehaviour
         hmeBar.SetEnergy(CurrentEnergy);
     }
 
+    public void RestoreFullEnergy()
+    {
+        CurrentEnergy = MaxEnergy;
+        EnergyAccumulator = 0f;
+        UpdateEnergyUI();
+    }
+
     public void SetCastingLaser(bool value)
     {
         IsCastingLaser = value;
+    }
+
+    private void Interact()
+    {
+        Collider2D[] Hits = Physics2D.OverlapCircleAll(transform.position, InteractRange);
+        foreach (var Hit in Hits)
+        {
+            Chest chest = Hit.GetComponent<Chest>();
+            if (chest != null)
+            {
+                chest.Open();
+                break; 
+            }
+        }
     }
 }

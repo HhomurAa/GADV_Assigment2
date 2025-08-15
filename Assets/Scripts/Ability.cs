@@ -32,10 +32,12 @@ public class Ability : MonoBehaviour
     [SerializeField] private HMEBar hmeBar;
     private GameObject ActiveLaser;
 
+    [Header("Interaction Settings")]
+    [SerializeField] private float PickupRange = 2f; //range to detect ability drops
+
     private void Start()
     {
         CurrentMana = MaxMana;
-        //get HMEBar if not assigned
         if (hmeBar == null)
         {
             hmeBar = FindFirstObjectByType<HMEBar>();
@@ -45,7 +47,6 @@ public class Ability : MonoBehaviour
         {
             hmeBar.SetMaxMana(MaxMana);
             hmeBar.SetMana(Mathf.RoundToInt(CurrentMana));
-            //instantiate slider at full cooldown
             hmeBar.SetFireBallCooldown(Cooldown);
             hmeBar.UpdateFireballCooldown(CooldownTimer);
         }
@@ -58,22 +59,32 @@ public class Ability : MonoBehaviour
 
     private void Update()
     {
+        HandleCooldown();
+        HandleManaRegen();
+        HandleAbilityCasting();
+        HandleAbilityPickup();
+    }
+
+    private void HandleCooldown()
+    {
         if (CooldownTimer > 0f)
         {
             CooldownTimer -= Time.deltaTime;
-        }
-
-        if (CooldownTimer < 0)
-        {
-            CooldownTimer = 0;
+            if (CooldownTimer < 0)
+            {
+                CooldownTimer = 0;
+            }
         }
 
         if (hmeBar != null)
         {
             hmeBar.UpdateFireballCooldown(CooldownTimer);
         }
+    }
 
-        //mana regen
+    private void HandleManaRegen()
+    {
+        //regen when mana is not full
         if (CurrentMana < MaxMana)
         {
             CurrentMana += ManaRegen * Time.deltaTime;
@@ -85,14 +96,19 @@ public class Ability : MonoBehaviour
             if (hmeBar != null)
                 hmeBar.SetMana(Mathf.RoundToInt(CurrentMana));
         }
+    }
 
-        //cast ability
+    private void HandleAbilityCasting()
+    {
         if (abilityType == AbilityType.Laserbeam)
         {
+            //hold down left click to fire laser
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 StartLaser();
             }
+
+            //stop laser
             if (Input.GetKeyUp(KeyCode.Alpha1))
             {
                 StopLaser();
@@ -103,22 +119,52 @@ public class Ability : MonoBehaviour
         {
             ActivateAbility();
         }
+    }
 
+    private void HandleAbilityPickup()
+    {
+        //change ability when press C over drop item
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            //get all colliders in within range
+            Collider2D[] Hits = Physics2D.OverlapCircleAll(transform.position, PickupRange);
+            foreach (Collider2D Hit in Hits)
+            {
+                //check if collider has drop data component
+                AbilityDropData DropData = Hit.GetComponent<AbilityDropData>();
+                if (DropData != null)
+                {
+                    SwitchAbility(DropData.abilityType); //switch ability
+                    Destroy(Hit.gameObject);
+                    Debug.Log("Switched to " + DropData.abilityType);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void SwitchAbility(AbilityType NewAbility)
+    {
+        abilityType = NewAbility;
+        CooldownTimer = 0f;
+
+        if (hmeBar != null)
+        {
+            hmeBar.SetFireBallCooldown(Cooldown);
+            hmeBar.UpdateFireballCooldown(CooldownTimer);
+
+            //update icon
+            hmeBar.SetAbilityIcon(NewAbility);
+        }
     }
 
     public void ActivateAbility()
     {
-        //wont activate if theres cooldown
-        if (CooldownTimer > 0)
-        {
-            return;
-        }
+        if (CooldownTimer > 0) return;
 
-        //checks for which ability the player currently has
         switch (abilityType)
         {
             case AbilityType.Fireball:
-            {
                 if (CurrentMana >= FireballManaCost)
                 {
                     CurrentMana -= FireballManaCost;
@@ -127,14 +173,11 @@ public class Ability : MonoBehaviour
                     CooldownTimer = Cooldown;
                 }
                 break;
-            }
+
             case AbilityType.Laserbeam:
-            {
                 if (CurrentMana > 0 && LaserbeamPrefab != null)
                 {
-                    //instantiate the laser
                     GameObject LaserObj = Instantiate(LaserbeamPrefab, FirePoint.position, FirePoint.rotation);
-
                     Laserbeam Laser = LaserObj.GetComponent<Laserbeam>();
                     if (Laser != null)
                     {
@@ -143,27 +186,22 @@ public class Ability : MonoBehaviour
                     CooldownTimer = Cooldown;
                 }
                 break;
-            }
         }
     }
+
     private void ActivateFireball()
     {
         if (FireballPrefab != null && FirePoint != null)
         {
-            //rotate the prefab to align with player direction
             Instantiate(FireballPrefab, FirePoint.position, FirePoint.rotation);
         }
     }
 
-    public bool ConsumeMana(float Amount)
+    public bool ConsumeMana(float amount)
     {
-        if (CurrentMana < Amount)
-        {
-            return false;
-        }
+        if (CurrentMana < amount) return false;
 
-        CurrentMana -= Amount;
-
+        CurrentMana -= amount;
         if (hmeBar != null)
         {
             hmeBar.SetMana(Mathf.RoundToInt(CurrentMana));
@@ -171,30 +209,21 @@ public class Ability : MonoBehaviour
         return true;
     }
 
-    public Transform GetFirePoint()
-    {
-        return FirePoint;
-    }
-
-    public int GetLaserbeamManaCost()
-    {
-        return LaserbeanManaCost;
-    }
+    public Transform GetFirePoint() => FirePoint;
+    public int GetLaserbeamManaCost() => LaserbeanManaCost;
 
     private void StartLaser()
     {
-        if (CurrentMana <= 0 || LaserbeamPrefab == null || ActiveLaser != null)
-            return;
+        if (CurrentMana <= 0 || LaserbeamPrefab == null || ActiveLaser != null) return;
 
-        //lock movement
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
-        if (playerMovement != null) playerMovement.SetCastingLaser(true);   
+        if (playerMovement != null) playerMovement.SetCastingLaser(true);
 
         ActiveLaser = Instantiate(LaserbeamPrefab, FirePoint.position, FirePoint.rotation);
         Laserbeam Laser = ActiveLaser.GetComponent<Laserbeam>();
         if (Laser != null)
         {
-            Laser.StartLaser(this, true); 
+            Laser.StartLaser(this, true);
         }
     }
 
@@ -206,8 +235,16 @@ public class Ability : MonoBehaviour
             ActiveLaser = null;
         }
 
-        //unlock movement
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
         if (playerMovement != null) playerMovement.SetCastingLaser(false);
+    }
+
+    public void RestoreFullMana()
+    {
+        CurrentMana = MaxMana;
+        if (hmeBar != null)
+        {
+            hmeBar.SetMana(Mathf.RoundToInt(CurrentMana));
+        }
     }
 }

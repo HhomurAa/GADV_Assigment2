@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AbilityName: Laserbeam
   Cooldown: 0
-  Damage: 5
+  Damage: 160
   Range: 10
   ManaCost: 5

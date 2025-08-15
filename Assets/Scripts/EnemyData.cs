@@ -7,4 +7,5 @@ public class EnemyData : ScriptableObject
     public int Hp;
     public int Damage;
     public int Speed;
+    public int ExpReward;
 }

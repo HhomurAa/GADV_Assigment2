@@ -125,7 +125,7 @@ Transform:
   m_GameObject: {fileID: 4781626800544845330}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.15, y: -2.56, z: -0.0834645}
+  m_LocalPosition: {x: -0.15, y: -2.56, z: 1.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -217,11 +217,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Damage: 5
   Speed: 4
-  DetectionRange: 10
+  DetectionRange: 5
   StopDistance: 2.5
   AttackIndicatorPrefab: {fileID: 1580382015415720992}
   Data: {fileID: 11400000, guid: 736a90b3c7f387743989285123d7a996, type: 2}
   AttackArea: {fileID: 5396499557784063517}
+  ExpReward: 25
 --- !u!50 &760725482093861429
 Rigidbody2D:
   serializedVersion: 5
@@ -409,7 +410,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1410446329630482923, guid: 9d260ab0fbca5f6449a8625ba3347d63, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0834645
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1410446329630482923, guid: 9d260ab0fbca5f6449a8625ba3347d63, type: 3}
       propertyPath: m_LocalRotation.w
